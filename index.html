@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<!------------------------------HEAD------------------------------------------------>
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Practical Lab</title> 
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<!------------------------------BODY------------------------------------------------>
+<body>
+    <!--Navigation bar--> 
+    <nav>
+        <!--Add a sandwich icon here-->
+        <div class="sandwich-icon-area">
+            <p onclick="openNav()"> &#9776; <span>Welcome to the world of web technologies</span> </p>
+        </div>       
+    </nav>
+
+    <!--The curtain dropdown menu-->
+    <div id="myNav" class="overlay">
+        <p class="close-icon" onclick="closeNav()"> &times; </p>
+        <div class="overlay-content">
+            <a href="index.html">HOME</a>
+            <a href="#">WEB LANGAGUES</a>
+            <a href="#">WEB DESIGN</a>
+            <a href="#">CONTACT US</a>
+        </div>
+    </div>
+
+    <script>
+        //When users click on "sandwich icon", open or show the curtain menu layer
+        function openNav() {
+            document.getElementById("myNav").style.display = "block";
+        }
+        //Write the closeNav() method here
+        function closeNav() {
+            document.getElementById("myNav").style.display = "none";
+        }
+    </script>
+    
+    <!--main area--> 
+    <main id="mainArea">
+        
+        <h2>SHOPPING CART <span onclick="toggleCart()" style='font-size: 25px;'>&#128722;</span></h2>        
+        <div id="shopping-cart">
+            <p style="font-weight: bold;">TOTAL: $<span id="totalPrice">0.0</span></p>
+            <table id="itemTable">                
+                <tr>
+                    <th style="width:50%">Item</th>
+                    <th style="width:10%">Quantity</th>
+                    <th style="width:20%">Price</th>
+                    <th style="width:30%">Action</th>
+                  </tr>
+            </table>
+        </div>
+		<br>
+		<button style="font-size: 25px; font-weight: bold; border: 2px solid black;" onclick='window.open("cart.html", "_self")'>CHECK OUT</button>
+		
+        <br><br>
+
+        <h2>FUNCTIONS</h2>
+        <br>
+        <label>Search:</label>
+		<input type="text" id="searchInput" onchange="displayFilteredItems()">   
+        <br> <br>
+        <label>SORT BY</label>
+        <button style="padding: 5px;" onclick="sortByPrice()">PRICE</button>
+        <button  style="padding: 5px;" onclick="sortByYear()">YEAR</button> 
+        <button  style="padding: 5px;" onclick="sortByTitle()">TITLE</button> 
+        <br><br>
+        <label>CATEGORY: </label> 
+        <select style="padding: 5px;" id="categoryID" onchange="sortByCategory()">
+            <option value="all">ALL</option>
+        </select>
+      
+        <br><br>
+        <h2>LIST OF ITEMS</h2>
+        <div id="itemList"></div>
+
+        <script src="data.js"></script>    
+        <script>
+            //---------------------------------------------
+            //FUNCTION: COLLECT ALL ITEMS FROM AN ARRAY
+            function displayAllItems(itemList){
+                let allItems = "";
+                for(let i=0; i < itemList.length; i++){
+                    let item =  '<div class="item-card">'                                
+                                +    '<h4 style="white-space: nowrap; overflow: hidden; text-overflow: clip;" >' + itemList[i].title + '</h4>'
+                                +    '<p>Year: ' + itemList[i].year + '</p>'
+                                +    '<p>Category: ' + categories.find(category => category.id == itemList[i].category).category + '</p>'
+                                +    '<img src=' + itemList[i].image_url + ' height="150" onclick="showItem(' + itemList[i].id.toString() + ')">'
+                                +    '<h3 style="color: red;">Price: $' + itemList[i].price + '</h3>'
+                                +    '<button onclick="addToCart(' + itemList[i].id + ')"> ADD TO CART </button>'
+                                + '</div>' ;
+                    
+                    allItems += item;
+                }
+                return allItems;
+            }
+            //          
+            document.getElementById("itemList").innerHTML = displayAllItems(items);
+
+            function showItem(i) {
+                // ON PAGE1: save itemID to localStorage
+                localStorage.setItem('danielItemID', i); 
+                //Open a new webpage
+                //window.open("itempage.html", "_blank");
+                window.open("itempage.html", "_self");
+            }
+
+            //---------------------------------------------
+            //SEARCH FEATURE
+            //Filter feature: https://www.w3schools.com/jsref/jsref_filter.asp
+            function displayFilteredItems() {
+                //Get keyword entered by user
+                let keyword = document.getElementById("searchInput").value.toLowerCase();
+                //Get filtered items
+                let filteredItems = items.filter(item => {
+                    return item.title.toLowerCase().includes(keyword);
+                });
+                //Display the filtered items
+                document.getElementById("itemList").innerHTML = displayAllItems(filteredItems);
+            }
+
+            //---------------------------------------------
+            //SORTING
+            //By price
+            function sortByPrice() {
+                //Sort all items by prices
+                let sortedItems = items.sort((item1, item2) => (item1.price < item2.price) ? 1 : -1);
+                //Display the sorted items
+                document.getElementById("itemList").innerHTML = displayAllItems(sortedItems);
+            }
+
+            //By year
+            function sortByYear() {
+                //Sort all items by years
+                let sortedItems = items.sort((item1, item2) => (item1.year < item2.year) ? 1 : -1);
+                //Display the sorted items
+                document.getElementById("itemList").innerHTML = displayAllItems(sortedItems);
+            }
+
+            //By title
+            function sortByTitle() {
+                //Sort all items by title
+                let sortedItems = items.sort((item1, item2) => (item1.title > item2.title) ? 1 : -1);
+                //Display the sorted items
+                document.getElementById("itemList").innerHTML = displayAllItems(sortedItems);
+            }
+
+            //By category
+            //Populate the select "options" with all categories in the array when the page is loaded
+            function loadCategories(categoryArray, selectMenu) {
+                //Clear the selectMenu if it's existing
+                //selectMenu.innerHTML = "";
+                //Loop through all items in the categories array and add a new option to the "select" element
+                for(let i=0; i < categoryArray.length; i++) {
+                    //Create a new option and then add it to the "select" element
+                    let newOption = document.createElement("option");
+                    newOption.text = categoryArray[i].category;
+                    newOption.value = categoryArray[i].id.toString();
+                    selectMenu.appendChild(newOption);
+                }
+                //Set the first item as selected option in drop-down list
+                document.getElementById("categoryID").selectedIndex= "0"; 
+            }
+            //call to execute this function when loading the webpage
+            loadCategories(categories, document.getElementById("categoryID"));
+
+            function sortByCategory() {
+                //Get the selected category "option value"
+                let selectedCateogryID = document.getElementById("categoryID").value; 
+                //Filter all items by category
+                let filteredItems = "";
+                if (selectedCateogryID == 'all') {
+                    filteredItems = items;
+                } else {
+                    filteredItems = items.filter(item => {
+                        return item.category == selectedCateogryID;
+                    });
+                }
+                //Display the filtered items
+                document.getElementById("itemList").innerHTML = displayAllItems(filteredItems);
+            }
+        </script>
+
+        <script>
+            //------------------------------------------------------
+            //Toggle the shopping cart (open/hide) when clicking on the icon "cart"
+            let cartStatus = 'close';
+            function toggleCart() {
+				//Toggle the cart: hide & show
+                if (cartStatus == 'close') {
+                    //Show the shopping cart div and change the cartStatus to 'open'
+                    document.getElementById("shopping-cart").style.display = 'block';
+                    cartStatus = 'open';
+                } else {
+                    //Hide the shopping cart div and change the cartStatus to 'close'
+                    document.getElementById("shopping-cart").style.display = 'none';
+                    cartStatus = 'close';                   
+                }
+				
+				//Display all existing items in CART
+				displayCart();
+            }
+
+            //------------------------------------------------------
+            //DISPLAY ALL ITEMS IN THE CART            
+            let itemInCart = [];
+			// Retrieving the items in the cart
+			let retString = localStorage.getItem("updatedShoppingCart-Daniel");
+			// Retrieved array - check if this retString is null or empty or not?
+			if (retString == null || retString == "") {
+				itemInCart = [];
+			} else {
+				itemInCart = JSON.parse(retString);		
+			}
+			//
+            let totalPrice = 0.0;
+            //
+            function displayCart() {
+                //--------------------  
+                //Update the item table              
+                let itemTable = document.getElementById("itemTable");
+                 //Delete all rows except the th
+                for(var i = 1; i<itemTable.rows.length;){
+                    itemTable.deleteRow(i);
+                }
+                //Update the item table
+                let totalPrice = 0;
+                for (let index = 0; index < itemInCart.length; index++) {
+                    //Create a row using the inserRow() method and specify the index where you want to add the row
+                    let row = itemTable.insertRow(-1); // We are adding at the end                
+                    //Create table cells: arr.findIndex(p => p.property == someValue)
+                    row.insertCell(0).innerText = items.find(item => item.id == itemInCart[index].id).title;
+                    row.insertCell(1).innerHTML = itemInCart[index].quantity;
+                    row.insertCell(2).innerHTML = itemInCart[index].quantity * items.find(item => item.id == itemInCart[index].id).price;
+                    row.insertCell(3).innerHTML = '<button onclick="removeItem(' + itemInCart[index].id + ')">REMOVE</button>'; 
+
+                    //Update totalPrice 
+                    totalPrice += itemInCart[index].quantity * items.find(item => item.id == itemInCart[index].id).price;
+                }
+                //--------------------  
+                //Update totalPrice
+                document.getElementById("totalPrice").innerHTML = totalPrice;
+            }
+
+            //------------------------------------------------------
+            //ADD ITEM TO CART
+            function addToCart(id) {              
+                //Update the itemInCart
+                //Check if id is existing in the 'itemInCart'. If yes, just increase the quantity; otherwise add a new row at the end.
+                let alreadyExist = false;
+                for (let index = 0; index < itemInCart.length; index++) {
+                    if (itemInCart[index].id == id) {
+                        itemInCart[index].quantity = itemInCart[index].quantity + 1;
+                        alreadyExist = true;
+                    }
+                }
+                if (!alreadyExist) {
+                    itemInCart.push({id: id, quantity: 1});
+                }
+                //Display updated itemInCart
+                displayCart();   
+
+				//----------------------------------------
+				//CHECKOUT - Open a separate cart page
+				//Store this updated itemInCart in localStorage
+				localStorage.setItem("updatedShoppingCart-Daniel", JSON.stringify(itemInCart));
+            }
+
+            //------------------------------------------------------
+            //RemoveItem function 
+            function removeItem(itemID) {                 
+                //Remove item from the itemInCart
+                itemInCart = itemInCart.reduce((updatedItems, item) => {
+                    if (item.id !== itemID) {
+                        updatedItems.push(item);
+                    }
+                    return updatedItems;
+                }, []);
+                //Display updated itemInCart
+                displayCart(); 
+				
+				//----------------------------------------
+				//CHECKOUT - Open a separate cart page
+				//Store this updated itemInCart in localStorage
+				localStorage.setItem("updatedShoppingCart-Daniel", JSON.stringify(itemInCart));
+            }
+        </script>
+    </main>
+
+    <!--Footer Area--> 
+    <footer> 
+        <p>ITWD5.130 Website Development<br> School of Computing, EIT.</p> 
+    </footer>
+</body>
+</html>

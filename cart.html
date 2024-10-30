@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>Cart</title>
+</head>
+
+<body>
+    <!--Navigation bar--> 
+    <nav>
+        <!--Add a sandwich icon here-->
+        <div class="sandwich-icon-area">
+            <p onclick="openNav()"> &#9776; <span>Welcome to the world of web technologies</span> </p>
+        </div>       
+    </nav>
+
+    <!--The curtain dropdown menu-->
+    <div id="myNav" class="overlay">
+        <p class="close-icon" onclick="closeNav()"> &times; </p>
+        <div class="overlay-content">
+            <a href="index.html">HOME</a>
+            <a href="#">WEB LANGAGUES</a>
+            <a href="#">WEB DESIGN</a>
+            <a href="#">CONTACT US</a>
+        </div>
+    </div>
+
+    <script>
+        //When users click on "sandwich icon", open or show the curtain menu layer
+        function openNav() {
+            document.getElementById("myNav").style.display = "block";
+        }
+        //Write the closeNav() method here
+        function closeNav() {
+            document.getElementById("myNav").style.display = "none";
+        }
+    </script>
+
+    <main>
+		<h1>CHECK OUT</h1>
+        <h2>ITEMS IN <span style='font-size: 22px;'>&#128722;</span></h2>        
+        <div id="shopping-cart">
+            <p style="font-weight: bold;">TOTAL: $<span id="totalPrice">0.0</span></p>
+            <table id="itemTable">                
+                <tr>
+                    <th style="width:50%">Item</th>
+                    <th style="width:10%">Quantity</th>
+                    <th style="width:20%">Price</th>
+                    <th style="width:30%">Action</th>
+                  </tr>
+            </table>
+        </div>
+		
+		<script src="data.js"></script>   
+		
+		<script>		
+			//------------------------------------------------------
+            //Show the shopping-cart
+			document.getElementById("shopping-cart").style.display = 'block';
+
+            //------------------------------------------------------
+            //DISPLAY ALL ITEMS IN THE CART            
+			let itemInCart = [];			
+			//Retrieving the existing items in the cart
+			let retString = localStorage.getItem("updatedShoppingCart-Daniel");
+			// Retrieved array - check if this retString is null or empty or not?
+			if (retString == null || retString == "") {
+				itemInCart = [];
+			} else {
+				itemInCart = JSON.parse(retString);		
+			}		
+			
+            let totalPrice = 0.0;
+            function displayCart() {
+                //--------------------  
+                //Update the item table              
+                let itemTable = document.getElementById("itemTable");
+                 //Delete all rows except the th
+                for(var i = 1; i<itemTable.rows.length;){
+                    itemTable.deleteRow(i);
+                }
+                //Update the item table
+                let totalPrice = 0;
+                for (let index = 0; index < itemInCart.length; index++) {
+                    //Create a row using the inserRow() method and specify the index where you want to add the row
+                    let row = itemTable.insertRow(-1); // We are adding at the end                
+                    //Create table cells: arr.findIndex(p => p.property == someValue)
+                    row.insertCell(0).innerText = items.find(item => item.id == itemInCart[index].id).title;
+                    row.insertCell(1).innerHTML = itemInCart[index].quantity;
+                    row.insertCell(2).innerHTML = itemInCart[index].quantity * items.find(item => item.id == itemInCart[index].id).price;
+                    row.insertCell(3).innerHTML = '<button onclick="removeItem(' + itemInCart[index].id + ')">REMOVE</button>'; 
+
+                    //Update totalPrice 
+                    totalPrice += itemInCart[index].quantity * items.find(item => item.id == itemInCart[index].id).price;
+                }
+                //--------------------  
+                //Update totalPrice
+                document.getElementById("totalPrice").innerHTML = totalPrice;
+            }
+			
+			//Display all selected and existing items in cart
+			displayCart();
+			
+			//------------------------------------------------------
+            //RemoveItem function 
+            function removeItem(itemID) {                 
+                //Remove item from the itemInCart
+                itemInCart = itemInCart.reduce((updatedItems, item) => {
+                    if (item.id != itemID) {
+                        updatedItems.push(item);
+                    }
+                    return updatedItems;
+                }, []);
+                //Display updated itemInCart
+                displayCart(); 
+				
+				//----------------------------------------
+				//CHECKOUT - Open a separate cart page
+				//Store this updated itemInCart in localStorage
+				localStorage.setItem("updatedShoppingCart-Daniel", JSON.stringify(itemInCart));
+            }
+		</script>
+		
+		
+		
+
+    </main>
+
+    <!--Footer Area--> 
+    <footer> 
+        <p>ITWD5.130 Website Development<br> School of Computing, EIT.</p> 
+    </footer>
+</body>
+</html>

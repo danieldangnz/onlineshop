@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>Item Page</title>
+</head>
+
+<body>
+    <!--Navigation bar--> 
+    <nav>
+        <!--Add a sandwich icon here-->
+        <div class="sandwich-icon-area">
+            <p onclick="openNav()"> &#9776; <span>Welcome to the world of web technologies</span> </p>
+        </div>       
+    </nav>
+
+    <!--The curtain dropdown menu-->
+    <div id="myNav" class="overlay">
+        <p class="close-icon" onclick="closeNav()"> &times; </p>
+        <div class="overlay-content">
+            <a href="index.html">HOME</a>
+            <a href="#">WEB LANGGUES</a>
+            <a href="#">WEB DESIGN</a>
+            <a href="#">CONTACT US</a>
+        </div>
+    </div>
+
+    <script>
+        //When users click on "sandwich icon", open or show the curtain menu layer
+        function openNav() {
+            document.getElementById("myNav").style.display = "block";
+        }
+        //Write the closeNav() method here
+        function closeNav() {
+            document.getElementById("myNav").style.display = "none";
+        }
+    </script>
+
+    <main>
+        <h2>DISPLAY THE DETAIL OF SELECTED ITEM</h2>
+        <div id="itemDetail"></div>
+    
+        <script src="data.js"></script>    
+        <script>
+            //On PAGE 2: itempage.html 
+            //Get stored values
+            let itemID = localStorage.getItem('danielItemID'); 
+    
+            //Get all comments
+            function getAllComments(allComments){
+                let getComments = '';
+                for(let i=0; i < allComments.length; i++){
+                    getComments+= '<p>' + allComments[i].user + ': ' +  allComments[i].comment + '</p>';
+                }
+                return '<div id="commentID" style="font-style: italic;">' + getComments + '</div>';
+            }
+    
+            //
+            document.getElementById("itemDetail").innerHTML = 
+                 '<div class="one-item-card">'
+                +  '<h4>' + items.find(item => item.id == itemID).title + '</h4>'
+                +  '<p>Year: ' + items.find(item => item.id == itemID).year + '</p>'
+                +  '<img src=' +  items.find(item => item.id == itemID).image_url + ' height="150" >'
+                +  '<h3 style="color: red;">Price: $' + items.find(item => item.id == itemID).price + '</h3>'
+				+  '<p style="color: blue;">Description: ' + items.find(item => item.id == itemID).description + '</p>'
+                +  '<br><br>'
+                +  '<h4>RATING: </h4>'
+                +  '<button id="likeBtn">&#128077;</button>' 
+				+  '<p id="likeNumber" style="display: inline-block; margin-right: 20px;">' + votes.find(item => item.id == itemID).like + '</p>'
+                +  '<button id="dislikeBtn">&#128078;</button>' 
+				+  '<p id="dislikeNumber" style="display: inline-block;">' + votes.find(item => item.id == itemID).dislike + '</p>'
+                +  '<br> <br>'
+                +  '<h4>COMMENTS: </h4>'
+                +  getAllComments(comments.find(item => item.id == itemID).comments)
+                +'</div>' ;
+        </script>
+
+        <!--Add a new comment-->
+        <section> 
+            <h2 style="margin-top: 1.0em;">ADD A NEW COMMENT</h2>     
+            <label>Name: </label>
+            <input type="text" id="comment_name" placeholder="your name" size="45">
+            <br>
+            <label>Comment: </label><br>
+            <textarea id="comment_text" cols="50" rows="10">
+            </textarea>
+            <br>
+            <button onclick="addComment()">POST</button>                      
+        </section>
+        
+        <script>
+            //------------------------------------------
+            //Add a new comment
+            function addComment() { 
+                //Get entered value/data by user
+                let enteredCommentName = document.getElementById("comment_name").value;
+                let enteredCommentText = document.getElementById("comment_text").value; 
+                
+                if (enteredCommentName.trim() == "" || enteredCommentText.trim() =="") {
+                    alert("Please enter both your name and comment!");
+                } else {
+                    //Display this new comment on HTML page 
+                    let newComment = document.createElement("p");
+                    newComment.textContent = enteredCommentName + ': ' +  enteredCommentText;
+
+                    document.getElementById("commentID").appendChild(newComment);
+                    //document.getElementById("commentID").append(enteredCommentName + ': ' +  enteredCommentText);
+
+                    //Add this new comment to the array and update DATABASE
+                    //allComments.push({name: enteredCommentName, comment: enteredCommentText});  
+                    alert("Thank you for your comment!");
+
+                    //Clear comment box
+                    document.getElementById("comment_name").value = "";
+                    document.getElementById("comment_text").value = "";
+                }
+            } 
+
+            //-------------------------------------
+            //Vote
+            //Variables to track the clicking status
+            //RULE: Allow to vote only one: UP or DOWN
+            let currentVotes = {like: votes.find(item => item.id == itemID).like, 
+                                dislike: votes.find(item => item.id == itemID).dislike };
+            let voteStatus = {like: false, dislike: false};
+
+            document.getElementById("likeBtn").addEventListener("click", function() {
+                //Check current status of "like" button (has been clicked or not)
+                //alert('Click LIke');
+                if (voteStatus.like == false) {
+                    //Increase a "Like": Increase the like number by 1
+                    document.getElementById("likeNumber").innerHTML = currentVotes.like + 1;
+                    //Change the background color of Like button to GREEN
+                    document.getElementById("likeBtn").style.backgroundColor = "green";
+                    //Change the current status of "like" button: has been clicked
+                    voteStatus.like = true;//
+                    
+                    //Check "dislike" status - if dislike has been voted, down it by one & change status to False & change background color to white
+                    if (voteStatus.dislike == true) {
+                        document.getElementById("dislikeNumber").innerHTML = currentVotes.dislike;
+                    voteStatus.dislike = false;//
+                        document.getElementById("dislikeButton").style.backgroundColor = "white";
+                    }   
+
+                } else {
+                    //Keep the current number of like
+                    document.getElementById("likeNumber").innerHTML = currentVotes.like;
+                    //Change the background color of Like button to WHITE
+                    document.getElementById("likeBtn").style.backgroundColor = "white";
+                    //Change the current status of "like" button
+                    voteStatus.like = false;//has been clicked  
+                } 
+            });
+
+            document.getElementById("dislikeBtn").addEventListener("click", function() {
+                //alert('Click DisLIke');
+                //Check current status of "dislike" button (has been clicked or not)
+                if (voteStatus.dislike == false) {
+                    //Increase a "disLike"  by 1
+                    document.getElementById("dislikeNumber").innerHTML = currentVotes.dislike + 1;
+                    //Change the background color of Like button to GREEN
+                    document.getElementById("dislikeBtn").style.backgroundColor = "green";
+                    //Change the current status of "dislike" button
+                    voteStatus.dislike = true;//has been clicked
+                    
+                    //Check "like" status - if like has been voted, down it by one & change status to False & change background color to white
+                    if (voteStatus.like == true) {
+                    document.getElementById("likeNumber").innerHTML = currentVotes.like;
+                    voteStatus.like = false;//
+                    document.getElementById("likeBtn").style.backgroundColor = "white";
+                    }
+                    
+                } else {
+                    //Keep the current number of of "dislike"
+                    document.getElementById("dislikeNumber").innerHTML = currentVotes.dislike;
+                    //Change the background color of disLike button to WHITE
+                    document.getElementById("dislikeBtn").style.backgroundColor = "white";
+                    //Change the current status of "dislike" button
+                    voteStatus.dislike = false;//has been clicked 
+                } 
+
+            });
+
+        </script>
+
+    </main>
+
+    <!--Footer Area--> 
+    <footer> 
+        <p>ITWD5.130 Website Development<br> School of Computing, EIT.</p> 
+    </footer>
+</body>
+</html>
